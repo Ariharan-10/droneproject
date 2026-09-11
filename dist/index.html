@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AeroGuard AI - Drone Acoustic & Optical Defense Dashboard</title>
+  
+  <!-- Google Fonts for Tactical Aero HUD Theme -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <script type="module" crossorigin src="/assets/index-CT_hNJRK.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-BTPpioBK.css">
+</head>
+<body class="dark-theme">
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="brand-logo">
+        <i class="fa-solid fa-radar logo-icon"></i>
+        <div class="brand-text">
+          <span class="brand-title">AEROGUARD <span class="accent-text">AI</span></span>
+          <span class="brand-subtitle">Acoustic & Visual UAV Defense Grid</span>
+        </div>
+      </div>
+      <div class="status-pill status-active">
+        <span class="pulse-dot green"></span>
+        <span class="status-label">DEFENSE GRID ACTIVE</span>
+      </div>
+    </div>
+
+    <div class="header-center">
+      <nav class="nav-tabs">
+        <button class="nav-tab active" data-tab="tab-radar">
+          <i class="fa-solid fa-crosshairs"></i> Airspace Radar
+        </button>
+        <button class="nav-tab" data-tab="tab-audio">
+          <i class="fa-solid fa-wave-square"></i> Acoustic Analyzer
+        </button>
+        <button class="nav-tab" data-tab="tab-metrics">
+          <i class="fa-solid fa-chart-line"></i> Model Benchmarks
+        </button>
+        <button class="nav-tab" data-tab="tab-synth">
+          <i class="fa-solid fa-sliders"></i> Drone Synthesizer
+        </button>
+        <button class="nav-tab" data-tab="tab-logs">
+          <i class="fa-solid fa-list-check"></i> Threat Logs
+        </button>
+      </nav>
+    </div>
+
+    <div class="header-right">
+      <div class="system-info">
+        <div class="info-item">
+          <span class="info-label">GRID SECTOR:</span>
+          <span class="info-val">ALPHA-7 (37.7749° N, 122.4194° W)</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">UTC TIME:</span>
+          <span class="info-val" id="live-clock">00:00:00 UTC</span>
+        </div>
+      </div>
+      <button class="btn btn-outline-danger btn-alert-mute" id="mute-btn">
+        <i class="fa-solid fa-volume-high" id="mute-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="app-main">
+    
+    <!-- TAB 1: RADAR & AIRSPACE OVERVIEW -->
+    <section class="tab-content active" id="tab-radar">
+      <!-- Top Metrics Grid -->
+      <div class="metrics-row">
+        <div class="metric-card glass-panel border-cyan">
+          <div class="card-icon cyan"><i class="fa-solid fa-drone"></i></div>
+          <div class="card-info">
+            <span class="card-title">DETECTED UAVs</span>
+            <div class="card-value-group">
+              <span class="card-value cyan" id="metric-uav-count">3</span>
+              <span class="card-badge warning"><i class="fa-solid fa-triangle-exclamation"></i> 2 Incursion</span>
+            </div>
+            <span class="card-sub">Active Targets in Perimeter</span>
+          </div>
+        </div>
+
+        <div class="metric-card glass-panel border-emerald">
+          <div class="card-icon emerald"><i class="fa-solid fa-signal"></i></div>
+          <div class="card-info">
+            <span class="card-title">ACOUSTIC CONFIDENCE</span>
+            <div class="card-value-group">
+              <span class="card-value emerald" id="metric-confidence">98.4%</span>
+              <span class="card-badge success">SNR +24.8 dB</span>
+            </div>
+            <span class="card-sub">CNN Spectrogram Classifier</span>
+          </div>
+        </div>
+
+        <div class="metric-card glass-panel border-amber">
+          <div class="card-icon amber"><i class="fa-solid fa-compact-disc"></i></div>
+          <div class="card-info">
+            <span class="card-title">PRIMARY THREAT CLASS</span>
+            <div class="card-value-group">
+              <span class="card-value amber" id="metric-primary-class">Quadcopter</span>
+              <span class="card-badge danger">RPM ~5,400</span>
+            </div>
+            <span class="card-sub">DJI Mavic / Quad Architecture</span>
+          </div>
+        </div>
+
+        <div class="metric-card glass-panel border-red">
+          <div class="card-icon red"><i class="fa-solid fa-shield-cat"></i></div>
+          <div class="card-info">
+            <span class="card-title">PERIMETER ALERT LEVEL</span>
+            <div class="card-value-group">
+              <span class="card-value red glow-text" id="metric-alert-level">HIGH THREAT</span>
+              <span class="card-badge danger-pulse">LEVEL 3</span>
+            </div>
+            <span class="card-sub">Auto-Jammer System Ready</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Radar & Optical Grid -->
+      <div class="radar-grid">
+        <!-- Radar Viewport Column -->
+        <div class="glass-panel radar-viewport-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-crosshairs icon-cyan"></i>
+              <span>360° ACOUSTIC & RADAR SWEEP</span>
+            </div>
+            <div class="radar-controls">
+              <span class="control-label">Range:</span>
+              <button class="btn btn-sm btn-dark range-btn active" data-range="500">500m</button>
+              <button class="btn btn-sm btn-dark range-btn" data-range="1000">1000m</button>
+              <button class="btn btn-sm btn-dark range-btn" data-range="2000">2000m</button>
+            </div>
+          </div>
+          <div class="radar-canvas-container">
+            <canvas id="radar-canvas" width="600" height="600"></canvas>
+            <div class="radar-hud-overlay">
+              <div class="hud-top-left">AZIMUTH: <span id="radar-sweep-angle">0°</span></div>
+              <div class="hud-top-right">ACOUSTIC SENSORS: 4/4 ONLINE</div>
+              <div class="hud-bottom-left">TARGET LOCK: <span id="hud-locked-target">UAV-104</span></div>
+              <div class="hud-bottom-right">GRID RESOLUTION: HIGH</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Target Telemetry & Visual Feed Column -->
+        <div class="radar-side-column">
+          <!-- Live Thermal / Optical Camera Simulator -->
+          <div class="glass-panel camera-feed-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="fa-solid fa-video icon-red"></i>
+                <span>THERMAL IR OPTICAL RECON</span>
+              </div>
+              <div class="camera-mode-toggle">
+                <button class="btn btn-sm btn-dark cam-mode-btn active" id="cam-mode-ir">THERMAL IR</button>
+                <button class="btn btn-sm btn-dark cam-mode-btn" id="cam-mode-rgb">RGB</button>
+              </div>
+            </div>
+            <div class="camera-canvas-container">
+              <canvas id="camera-canvas" width="400" height="230"></canvas>
+              <div class="camera-overlay">
+                <div class="cam-status"><span class="pulse-dot red"></span> LIVE TARGET LOCK</div>
+                <div class="cam-target-info" id="cam-target-text">UAV-104 | DIST: 240m | 64 FPS</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected Target Telemetry Card -->
+          <div class="glass-panel target-details-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="fa-solid fa-microchip icon-amber"></i>
+                <span>TARGET ACOUSTIC SPECS</span>
+              </div>
+              <span class="badge badge-danger" id="target-status-badge">ACTIVE INTRUDER</span>
+            </div>
+            <div class="target-details-grid">
+              <div class="detail-box">
+                <span class="detail-label">TARGET ID</span>
+                <span class="detail-value cyan" id="target-id">UAV-104</span>
+              </div>
+              <div class="detail-box">
+                <span class="detail-label">CLASSIFICATION</span>
+                <span class="detail-value amber" id="target-class">DJI Mavic Pro</span>
+              </div>
+              <div class="detail-box">
+                <span class="detail-label">DISTANCE / ALT</span>
+                <span class="detail-value" id="target-dist">242m / 45m</span>
+              </div>
+              <div class="detail-box">
+                <span class="detail-label">SOUND LEVEL</span>
+                <span class="detail-value red" id="target-db">78.4 dB</span>
+              </div>
+              <div class="detail-box">
+                <span class="detail-label">EST. MOTOR RPM</span>
+                <span class="detail-value" id="target-rpm">5,420 RPM</span>
+              </div>
+              <div class="detail-box">
+                <span class="detail-label">FUNDAMENTAL FREQ</span>
+                <span class="detail-value emerald" id="target-freq">361.3 Hz</span>
+              </div>
+            </div>
+            <div class="threat-bar-container">
+              <div class="threat-bar-header">
+                <span>ACOUSTIC THREAT SCORE</span>
+                <span class="threat-percent" id="target-threat-pct">94%</span>
+              </div>
+              <div class="threat-progress-bar">
+                <div class="threat-fill" id="target-threat-fill" style="width: 94%;"></div>
+              </div>
+            </div>
+            <div class="action-btn-row">
+              <button class="btn btn-danger btn-block" id="btn-countermeasure">
+                <i class="fa-solid fa-bolt"></i> ACTIVATE RF JAMMER
+              </button>
+              <button class="btn btn-outline-cyan btn-block" id="btn-track">
+                <i class="fa-solid fa-magnifying-glass-location"></i> LOCK TRACKING
+              </button>
+            </div>
+          </div>
+
+          <!-- Real-Time Sound Waterfall Stream -->
+          <div class="glass-panel waterfall-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="fa-solid fa-water icon-emerald"></i>
+                <span>ACOUSTIC SPECTRUM WATERFALL (0-8 kHz)</span>
+              </div>
+            </div>
+            <canvas id="waterfall-canvas" width="400" height="90"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Alert Logs Stream -->
+      <div class="glass-panel alert-stream-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <i class="fa-solid fa-bell icon-red"></i>
+            <span>LIVE INCIDENT & ACOUSTIC ALERT STREAM</span>
+          </div>
+          <div class="alert-actions">
+            <button class="btn btn-sm btn-dark" id="btn-clear-alerts">Clear Stream</button>
+          </div>
+        </div>
+        <div class="alert-stream-list" id="alert-stream-list">
+          <!-- Dynamic Alerts -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: ACOUSTIC SPECTROGRAM & AUDIO ANALYZER -->
+    <section class="tab-content" id="tab-audio">
+      <div class="audio-analyzer-grid">
+        <!-- Audio Input & File Drop Zone Panel -->
+        <div class="glass-panel audio-controls-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-file-audio icon-cyan"></i>
+              <span>ACOUSTIC AUDIO INPUT & SAMPLES</span>
+            </div>
+          </div>
+
+          <!-- Audio Dropzone -->
+          <div class="dropzone" id="audio-dropzone">
+            <i class="fa-solid fa-cloud-arrow-up drop-icon"></i>
+            <div class="drop-text">Drag & Drop Drone Audio File (.wav, .mp3)</div>
+            <div class="drop-sub">or click to browse from local system</div>
+            <input type="file" id="audio-file-input" accept="audio/*" hidden />
+          </div>
+
+          <div class="section-divider"><span>OR PLAY PRESET SOUND SCENARIOS</span></div>
+
+          <!-- Audio Synthesizer / Preset Buttons -->
+          <div class="sample-preset-grid">
+            <button class="preset-btn active" data-sample="quadcopter">
+              <i class="fa-solid fa-drone preset-icon"></i>
+              <div class="preset-info">
+                <span class="preset-name">DJI Quadcopter</span>
+                <span class="preset-sub">RPM: 5200 | Freq: 346Hz</span>
+              </div>
+            </div>
+            <button class="preset-btn" data-sample="fpvdrone">
+              <i class="fa-solid fa-bolt-lightning preset-icon"></i>
+              <div class="preset-info">
+                <span class="preset-name">FPV Racing Drone</span>
+                <span class="preset-sub">RPM: 11000 | High Pitch</span>
+              </div>
+            </div>
+            <button class="preset-btn" data-sample="helicopter">
+              <i class="fa-solid fa-helicopter preset-icon"></i>
+              <div class="preset-info">
+                <span class="preset-name">Helicopter</span>
+                <span class="preset-sub">Heavy Blade Thud</span>
+              </div>
+            </div>
+            <button class="preset-btn" data-sample="bird">
+              <i class="fa-solid fa-crow preset-icon"></i>
+              <div class="preset-info">
+                <span class="preset-name">Bird & Wind Noise</span>
+                <span class="preset-sub">Non-Drone Ambience</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="audio-player-box">
+            <div class="audio-controls-row">
+              <button class="btn btn-success" id="btn-play-audio">
+                <i class="fa-solid fa-play" id="play-icon"></i> PLAY AUDIO
+              </button>
+              <button class="btn btn-dark" id="btn-stop-audio">
+                <i class="fa-solid fa-stop"></i> STOP
+              </button>
+              <div class="volume-slider-group">
+                <i class="fa-solid fa-volume-low"></i>
+                <input type="range" id="vol-slider" min="0" max="1" step="0.05" value="0.7" />
+              </div>
+            </div>
+            <div class="now-playing-label" id="now-playing-text">Active: DJI Quadcopter Audio Sample</div>
+          </div>
+        </div>
+
+        <!-- Live Audio Waveform & Spectrogram Panel -->
+        <div class="glass-panel spectrogram-main-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-wave-square icon-emerald"></i>
+              <span>REAL-TIME SPECTROGRAM & WAVEFORM ANALYZER</span>
+            </div>
+            <div class="spectro-view-toggle">
+              <span class="control-label">FFT Size:</span>
+              <select id="fft-size-select" class="dark-select">
+                <option value="1024">1024</option>
+                <option value="2048" selected>2048 (Default)</option>
+                <option value="4096">4096</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="spectro-canvas-stack">
+            <!-- Oscilloscope Waveform -->
+            <div class="canvas-box">
+              <span class="canvas-label">TIME DOMAIN WAVEFORM</span>
+              <canvas id="waveform-canvas" width="700" height="110"></canvas>
+            </div>
+
+            <!-- Frequency Spectrogram Canvas -->
+            <div class="canvas-box">
+              <span class="canvas-label">MEL SPECTROGRAM FREQUENCY DENSITY (0 - 8000 Hz)</span>
+              <canvas id="spectrogram-canvas" width="700" height="180"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Audio Feature Extraction & AI Classifier Section -->
+      <div class="audio-features-grid">
+        <!-- 20-Band MFCC Heatmap -->
+        <div class="glass-panel mfcc-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-grip icon-amber"></i>
+              <span>20-BAND MFCC COEFFICIENT HEATMAP</span>
+            </div>
+          </div>
+          <canvas id="mfcc-canvas" width="450" height="180"></canvas>
+        </div>
+
+        <!-- Live Neural Network Classification Breakdown -->
+        <div class="glass-panel ai-inference-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-brain icon-cyan"></i>
+              <span>CNN AUDIO INFERENCE BREAKDOWN</span>
+            </div>
+            <span class="badge badge-success">MODEL LATENCY: 8ms</span>
+          </div>
+
+          <div class="classification-bars">
+            <div class="class-prob-row">
+              <div class="class-info">
+                <span><i class="fa-solid fa-drone icon-red"></i> Drone (Quadcopter)</span>
+                <span class="prob-val" id="prob-drone">96.4%</span>
+              </div>
+              <div class="prob-progress">
+                <div class="prob-fill bg-red" id="prob-bar-drone" style="width: 96.4%;"></div>
+              </div>
+            </div>
+
+            <div class="class-prob-row">
+              <div class="class-info">
+                <span><i class="fa-solid fa-helicopter icon-amber"></i> Helicopter</span>
+                <span class="prob-val" id="prob-helicopter">2.8%</span>
+              </div>
+              <div class="prob-progress">
+                <div class="prob-fill bg-amber" id="prob-bar-helicopter" style="width: 2.8%;"></div>
+              </div>
+            </div>
+
+            <div class="class-prob-row">
+              <div class="class-info">
+                <span><i class="fa-solid fa-crow icon-emerald"></i> Bird Call</span>
+                <span class="prob-val" id="prob-bird">0.5%</span>
+              </div>
+              <div class="prob-progress">
+                <div class="prob-fill bg-emerald" id="prob-bar-bird" style="width: 0.5%;"></div>
+              </div>
+            </div>
+
+            <div class="class-prob-row">
+              <div class="class-info">
+                <span><i class="fa-solid fa-wind icon-cyan"></i> Ambient Noise</span>
+                <span class="prob-val" id="prob-background">0.3%</span>
+              </div>
+              <div class="prob-progress">
+                <div class="prob-fill bg-cyan" id="prob-bar-background" style="width: 0.3%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="inference-decision-box">
+            <span class="decision-label">FINAL CLASSIFICATION RESULT:</span>
+            <span class="decision-result text-red" id="final-class-result">DRONE AUDIO DETECTED (HIGH CONFIDENCE)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: MODEL BENCHMARKS & METRICS -->
+    <section class="tab-content" id="tab-metrics">
+      <div class="metrics-dashboard-grid">
+        <!-- Epoch Training & Validation Loss/Accuracy Curves -->
+        <div class="glass-panel chart-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-chart-line icon-cyan"></i>
+              <span>CNN-RESNET TRAINING ACCURACY & LOSS CURVES</span>
+            </div>
+            <span class="badge badge-cyan">Kaggle Drone Sound Dataset</span>
+          </div>
+          <canvas id="accuracy-chart-canvas" width="550" height="260"></canvas>
+        </div>
+
+        <!-- 5x5 Confusion Matrix Visualizer -->
+        <div class="glass-panel matrix-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-table-cells icon-emerald"></i>
+              <span>5x5 CONFUSION MATRIX (TEST SET)</span>
+            </div>
+            <span class="badge badge-success">Overall Accuracy: 98.4%</span>
+          </div>
+          <div class="matrix-container" id="confusion-matrix-container">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Model Specs & Feature Importance -->
+      <div class="model-details-grid">
+        <!-- Feature Importance Chart -->
+        <div class="glass-panel feature-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-chart-column icon-amber"></i>
+              <span>ACOUSTIC FEATURE IMPORTANCE (MFCC vs SPECTROGRAM)</span>
+            </div>
+          </div>
+          <canvas id="feature-importance-canvas" width="550" height="220"></canvas>
+        </div>
+
+        <!-- Hyperparameters & Model Architecture Table -->
+        <div class="glass-panel hyperparam-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-sliders icon-cyan"></i>
+              <span>MODEL HYPERPARAMETERS & SPECS</span>
+            </div>
+          </div>
+          <table class="dark-table">
+            <thead>
+              <tr>
+                <th>PARAMETER</th>
+                <th>VALUE / CONFIG</th>
+                <th>NOTES</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Model Architecture</td>
+                <td><span class="highlight-cyan">2D CNN + Residual Block</span></td>
+                <td>4 Conv Layers + BatchNorm + Dropout (0.3)</td>
+              </tr>
+              <tr>
+                <td>Audio Sample Rate</td>
+                <td>22,050 Hz</td>
+                <td>Mono Channel Waveform</td>
+              </tr>
+              <tr>
+                <td>FFT Window Size</td>
+                <td>2,048 (Hop: 512)</td>
+                <td>Mel Scale Filterbank (N_mels=128)</td>
+              </tr>
+              <tr>
+                <td>MFCC Coefficients</td>
+                <td>40 Bands</td>
+                <td>Mean + Delta + Delta-Delta features</td>
+              </tr>
+              <tr>
+                <td>Optimizer / Loss</td>
+                <td>Adam (lr=0.001)</td>
+                <td>Categorical Crossentropy</td>
+              </tr>
+              <tr>
+                <td>Test Precision / Recall</td>
+                <td>98.7% / 98.1%</td>
+                <td>F1-Score: 0.984</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: DRONE ACOUSTIC SYNTHESIZER -->
+    <section class="tab-content" id="tab-synth">
+      <div class="synth-layout-grid">
+        <!-- Controls Column -->
+        <div class="glass-panel synth-controls-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-sliders icon-amber"></i>
+              <span>ACOUSTIC ROTOR FREQUENCY SYNTHESIZER</span>
+            </div>
+          </div>
+
+          <div class="synth-sliders">
+            <!-- RPM Slider -->
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">MOTOR ROTATION SPEED (RPM)</span>
+                <span class="slider-val cyan" id="synth-rpm-val">5,400 RPM</span>
+              </div>
+              <input type="range" id="synth-rpm" min="2000" max="12000" step="100" value="5400" />
+              <div class="slider-sub">Blade Fundamental Freq: <span id="synth-fundamental-freq">360 Hz</span></div>
+            </div>
+
+            <!-- Blade Count -->
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">ROTOR BLADE COUNT</span>
+                <span class="slider-val emerald" id="synth-blades-val">2 Blades</span>
+              </div>
+              <div class="btn-group-synth" id="blade-count-selector">
+                <button class="btn btn-dark active" data-blades="2">2 Blades</button>
+                <button class="btn btn-dark" data-blades="3">3 Blades</button>
+                <button class="btn btn-dark" data-blades="4">4 Blades</button>
+              </div>
+            </div>
+
+            <!-- Distance Slider -->
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">DISTANCE FROM MIC (METERS)</span>
+                <span class="slider-val amber" id="synth-dist-val">150 m</span>
+              </div>
+              <input type="range" id="synth-dist" min="10" max="500" step="5" value="150" />
+            </div>
+
+            <!-- Wind Interference -->
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">WIND INTERFERENCE / NOISE</span>
+                <span class="slider-val red" id="synth-noise-val">Low (15%)</span>
+              </div>
+              <input type="range" id="synth-noise" min="0" max="100" step="5" value="15" />
+            </div>
+          </div>
+
+          <button class="btn btn-amber btn-lg btn-block" id="btn-toggle-synth">
+            <i class="fa-solid fa-play" id="synth-play-icon"></i> START LIVE ACOUSTIC SYNTH
+          </button>
+        </div>
+
+        <!-- Live Visualizer & AI Gauge Column -->
+        <div class="synth-right-column">
+          <!-- Real-Time AI Threat Gauge -->
+          <div class="glass-panel threat-gauge-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="fa-solid fa-gauge-high icon-red"></i>
+                <span>REAL-TIME AI THREAT EVALUATOR</span>
+              </div>
+            </div>
+            
+            <div class="gauge-flex-container">
+              <div class="gauge-box">
+                <canvas id="threat-gauge-canvas" width="260" height="180"></canvas>
+              </div>
+              <div class="gauge-readout">
+                <span class="gauge-status-title" id="gauge-threat-text">DRONE DETECTED</span>
+                <span class="gauge-status-sub" id="gauge-threat-sub">Harmonic Matches Motor Quadcopter Profile</span>
+                <div class="gauge-metric-box">
+                  <div class="g-metric">
+                    <span class="g-lbl">ESTIMATED dB</span>
+                    <span class="g-val red" id="gauge-db-val">74 dB</span>
+                  </div>
+                  <div class="g-metric">
+                    <span class="g-lbl">AI CONFIDENCE</span>
+                    <span class="g-val cyan" id="gauge-conf-val">97.8%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Synthesized Waveform Canvas -->
+          <div class="glass-panel synth-spectrum-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="fa-solid fa-wave-square icon-emerald"></i>
+                <span>SYNTHESIZED HARMONIC ACOUSTIC SPECTRUM</span>
+              </div>
+            </div>
+            <canvas id="synth-spectrum-canvas" width="550" height="160"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: THREAT LOGS & DATABASE -->
+    <section class="tab-content" id="tab-logs">
+      <div class="glass-panel logs-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <i class="fa-solid fa-database icon-cyan"></i>
+            <span>AIRSPACE INCIDENT & THREAT LOG DATABASE</span>
+          </div>
+          <div class="logs-actions">
+            <input type="text" id="log-search-input" placeholder="Search logs by ID, class, sector..." class="dark-input" />
+            <button class="btn btn-outline-cyan" id="btn-export-csv">
+              <i class="fa-solid fa-file-csv"></i> Export CSV
+            </button>
+            <button class="btn btn-outline-emerald" id="btn-export-json">
+              <i class="fa-solid fa-file-code"></i> Export JSON
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="dark-table logs-table">
+            <thead>
+              <tr>
+                <th>INCIDENT ID</th>
+                <th>TIMESTAMP</th>
+                <th>SECTOR</th>
+                <th>THREAT CLASS</th>
+                <th>MAX SOUND (dB)</th>
+                <th>FREQ (Hz)</th>
+                <th>AI CONFIDENCE</th>
+                <th>OPTICAL MATCH</th>
+                <th>STATUS / ACTION</th>
+              </tr>
+            </thead>
+            <tbody id="threat-logs-tbody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+</body>
+</html>
